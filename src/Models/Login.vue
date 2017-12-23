@@ -10,16 +10,9 @@
 </i18n>
 
 <template lang="pug">
-  v-container(grid-list-xs text-xs-center)#home
-    v-layout(row wrap)
-      v-flex(xs12)
-        h1.headlline.grey--text.darken-4 Movieny
-      v-flex(xs12)
-        h3.title.blue--text.darken-4 Please login
-      v-flex(xs12)
-        v-form(v-model="valid")
-          v-text-field(label="Email" v-model="email" :rules="emailRules" type="text" required)
-          v-text-field(label="Password" v-model="password" type="password" required)
+  b-container#home
+    h1 {{ $t("vue_project") }}
+      icon(name='smile-o')
 </template>
 
 <script type="babel">
