@@ -1,6 +1,7 @@
 var path = require('path');
 var webpack = require('webpack');
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
+var BrowserSyncPlugin = require('browser-sync-webpack-plugin');
 
 var appName = 'app';
 var entryPoint = './src/app.js';
@@ -31,9 +32,16 @@ if (env === 'production') {
       filename: "css/[name].css"
   });
 
+  var browserSync = new BrowserSyncPlugin({
+      host: 'localhost',
+      port: 8080,
+      server: { baseDir: [path.join(__dirname, "dist")] }
+  });
+
   appName = appName + '.js';
 
   plugins.push(extractSass);
+  plugins.push(browserSync);
 }
 
 module.exports = {
@@ -77,15 +85,6 @@ module.exports = {
         })
       }
     ]
-  },
-  devServer: {
-    contentBase: path.join(__dirname, "dist"),
-    clientLogLevel: "info",
-    port: 8080,
-    overlay: {
-      warnings: true,
-      errors: true
-    }
   },
   resolve: {
     alias: {
