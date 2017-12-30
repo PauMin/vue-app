@@ -10,37 +10,88 @@
 </i18n>
 
 <template lang="pug">
-  v-container(grid-list-xs text-xs-center)#home
-    v-layout(row wrap)
-      v-flex(xs12)
-        h1.headlline.grey--text.darken-4 Movieny
-      v-flex(xs12)
-        h3.title.blue--text.darken-4 Please login
-      v-flex(xs12)
-        v-form(v-model="valid")
-          v-text-field(label="Email" v-model="email" :rules="emailRules" type="text" required)
-          v-text-field(label="Password" v-model="password" type="password" required)
+  v-ons-page#home
+    v-ons-toolbar
+      .center {{ title }}
+    v-ons-card(v-if="!loggedIn")
+      .content
+        form
+          v-ons-list(modifier="noborder")
+            v-ons-list-item
+              v-ons-input(type="email" v-model="form.email" input-id="email" placeholder="Email" float)
+          v-ons-list(modifier="noborder")
+            v-ons-list-item
+              v-ons-input(type="password" v-model="form.password" input-id="password" placeholder="Password" float)
+          v-ons-list(modifier="noborder")
+            v-ons-list-item
+              v-ons-button(modifier="large" @click="submitForm") Submit
 </template>
 
 <script type="babel">
 export default {
   name: 'home',
-  watch: {
-    locale (val) {
-      this.$i18n.locale = val
+  data() {
+    let instance = this.axios.create({
+      baseURL: 'http://127.0.0.1:8000/api/',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    return {
+      title: 'Movieny',
+      form: {
+        email: '',
+        password: ''
+      },
+      instance: instance,
+      storage: '',
+      loggedIn: false,
+      sessionKey: ''
     }
   },
-  created: function() {
-    this.$cookie.set('test', 'Hello world!', 1);
+  watch: {
+    locale (val) {
+      this.$i18n.locale = val;
+    }
+  },
+  created() {
+    // this.$cookie.set('test', 'Hello world!', 1);
+    this.storage = window.localStorage;
+    this.sessionKey = this.storage.getItem('sessionKey');
+    this.loggedIn = this.checkLoggedIn();
+    if(this.loggedIn) {
+      this.instance = this.axios.create({
+        baseURL: 'http://127.0.0.1:8000/api/',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer '+this.sessionKey
+        }
+      });
+    }
+  },
+  methods: {
+    submitForm() {
+      let data = this.form;
+      this.instance.post('/login', data)
+      .then((response) => {
+        console.log(response);
+      })
+    },
+    checkLoggedIn() {
+      this.instance.get('/user')
+      .then((response) => {
+        return true;
+      })
+      .catch((error) => {
+        return false;
+      });
+    }
   }
 }
 </script>
 
 <style lang="scss" scoped>
   #home{
-    h1{
-      color: #232322;
-      text-align: center;
-    }
   }
 </style>
